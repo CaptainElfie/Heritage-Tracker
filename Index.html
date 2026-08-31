@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HERITAGE TRACKER v4.1</title>
+<style>
+:root{
+  --bg:#0d1117; --panel:#161b22; --panel2:#1f2630; --line:#30363d;
+  --text:#f0f6fc; --muted:#8b949e; --green:#3fb950; --blue:#58a6ff;
+  --amber:#d29922; --red:#f85149; --purple:#a371f7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.app{max-width:1500px;margin:auto;padding:22px}
+.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:18px}
+.brand h1{margin:0;font-size:26px}.brand small{color:var(--muted)}
+.monthBox{display:flex;gap:10px;align-items:center}
+input,select,textarea,button{font:inherit}
+input,select,textarea{background:#0d1117;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px}
+button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+.primary{background:var(--blue);color:#07111f}.secondary{background:#21262d;color:var(--text);border:1px solid var(--line)}
+.danger{background:rgba(248,81,73,.14);color:#ff7b72;border:1px solid rgba(248,81,73,.35)}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.tab{background:#21262d;color:var(--muted);border:1px solid var(--line)}
+.tab.active{background:var(--blue);color:#08111c;border-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px;margin-bottom:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}
+.card .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.card .v{font-size:24px;font-weight:800;margin-top:5px}
+.progress{height:8px;background:#21262d;border-radius:999px;overflow:hidden;margin-top:10px}
+.progress>div{height:100%;background:var(--green)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.panelHead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.panelHead h2{margin:0;font-size:17px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tableWrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1150px}
+th,td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;background:#12171e;position:sticky;top:0}
+tr:hover td{background:rgba(88,166,255,.035)}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800}
+.new{background:rgba(139,148,158,.18);color:#c9d1d9}.appt{background:rgba(88,166,255,.16);color:#79c0ff}
+.met{background:rgba(163,113,247,.16);color:#d2a8ff}.closed{background:rgba(63,185,80,.16);color:#56d364}
+.follow{background:rgba(210,153,34,.18);color:#e3b341}.lost{background:rgba(248,81,73,.14);color:#ff7b72}
+.empty{padding:45px;text-align:center;color:var(--muted)}
+.page{display:none}.page.active{display:block}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal.show{display:flex}.modalCard{width:min(820px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.formGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.formGrid input,.formGrid select,.formGrid textarea{width:100%}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.note{white-space:pre-wrap;max-width:260px;color:#c9d1d9}
+.callbtn{padding:6px 8px;font-size:12px}.nowrap{white-space:nowrap}
+.secretBtn{
+  position:fixed;left:18px;bottom:18px;z-index:15;width:42px;height:42px;padding:0;
+  border-radius:50%;background:#21262d;color:var(--muted);border:1px solid var(--line);
+  font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.25)
+}
+.secretBtn:hover{color:var(--text);border-color:var(--muted)}
+.commissionGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.commissionStat{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:14px}
+.commissionStat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.commissionStat .amount{font-size:24px;font-weight:800;margin-top:5px}
+@media(max-width:650px){.commissionGrid{grid-template-columns:1fr}}
+.attachBox{border:1px solid var(--line);border-radius:10px;padding:12px;background:#11161d}
+.attachList{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.attachItem{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#0d1117}
+.attachMeta{min-width:0}
+.attachName{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:430px}
+.attachSub{font-size:11px;color:var(--muted);margin-top:2px}
+.attachActions{display:flex;gap:6px;flex-shrink:0}
+.attachPreview{max-width:100%;max-height:320px;border-radius:8px;margin-top:8px;border:1px solid var(--line)}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.app{padding:12px}.grid{grid-template-columns:repeat(2,1fr)}.formGrid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <h1>HERITAGE TRACKER</h1>
+      <small>PR & Singapore Citizenship Client Pipeline</small>
+    </div>
+    <div class="monthBox">
+      <input type="month" id="monthFilter">
+      <button class="primary" onclick="openModal()">+ Add Lead</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-page="tracker">1. New Leads</button>
+    <button class="tab" data-page="appointments">2. Appointments Set</button>
+    <button class="tab" data-page="followups">3. Follow Ups</button>
+    <button class="tab" data-page="closed">4. Closed</button>
+    <button class="tab" data-page="lost">5. Lost</button>
+  </div>
+
+  <div class="grid" id="stats"></div>
+
+  <section class="page active" id="tracker">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>New Leads / To Call</h2>
+        <div class="tools">
+          <input id="searchAll" placeholder="Search name / phone / notes...">
+          <select id="sortNew">
+            <option value="newest">Newest Called</option>
+            <option value="oldest">Oldest Called</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+          </select>
+          <button class="secondary" onclick="document.getElementById('csvLeadInput').click()">Import New Leads CSV</button>
+          <button class="secondary" onclick="exportCSV()">Export CSV</button>
+          <input type="file" id="csvLeadInput" accept=".csv,text/csv" style="display:none">
+        </div>
+      </div>
+      <div class="tableWrap"><table>
+        <thead><tr>
+          <th>Date</th><th>Client</th><th>Phone</th><th>Service</th><th>Status</th><th>Client Met</th>
+          <th>Appointment</th><th>Price</th><th>Follow-up</th><th>Notes</th><th>Action</th>
+        </tr></thead><tbody id="allBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="page" id="appointments">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Appointments Set</h2>
+        <div class="tools">
+          <input id="searchAppointments" placeholder="Search appointments...">
+          <select id="sortAppointments">
+            <option value="soonest">Appointment Soonest</option>
+            <option value="latest">Appointment Latest</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+            <option value="calledNewest">Called Newest</option>
+          </select>
+        </div>
+      </div>
+      <div class="tableWrap"><table>
+        <thead><tr>
+          <th>Client</th><th>Phone</th><th>Service</th><th>Called When</th><th>Appointment</th><th>Status</th><th>Client Met</th><th>Met When</th>
+          <th>Price</th><th>Notes</th><th>Action</th>
+        </tr></thead><tbody id="apptBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="page" id="followups">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Follow Ups — Called / Met / Not Closed</h2>
+        <div class="tools">
+          <input id="searchFollow" placeholder="Search follow ups...">
+          <select id="sortFollow">
+            <option value="soonest">Follow-up Soonest</option>
+            <option value="latest">Follow-up Latest</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+          </select>
+          <select id="followDue">
+            <option value="">All follow-ups</option>
+            <option value="overdue">Overdue</option>
+            <option value="today">Due today</option>
+            <option value="future">Upcoming</option>
+          </select>
+        </div>
+      </div>
+      <div class="tableWrap"><table>
+        <thead><tr>
+          <th>Client</th><th>Phone</th><th>Service</th><th>Client Met</th><th>Met On</th><th>Follow-up</th>
+          <th>Quoted Price</th><th>Notes</th><th>Action</th>
+        </tr></thead><tbody id="followBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="page" id="closed">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Closed Sales</h2>
+        <div class="tools">
+          <input id="searchClosed" placeholder="Search closed sales...">
+          <select id="sortClosed">
+            <option value="newest">Closed Newest</option>
+            <option value="oldest">Closed Oldest</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+          </select>
+        </div>
+      </div>
+      <div class="tableWrap"><table>
+        <thead><tr>
+          <th>Client</th><th>Phone</th><th>Service</th><th>Client Met</th><th>Appointment</th><th>Met On</th>
+          <th>Closed When</th><th>Closed Price</th><th>Notes</th><th>Action</th>
+        </tr></thead><tbody id="closedBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+
+  <section class="page" id="lost">
+    <div class="panel">
+      <div class="panelHead">
+        <h2>Lost Leads</h2>
+        <div class="tools">
+          <input id="searchLost" placeholder="Search lost leads...">
+          <select id="sortLost">
+            <option value="newest">Lost Newest</option>
+            <option value="oldest">Lost Oldest</option>
+            <option value="az">Name A–Z</option>
+            <option value="za">Name Z–A</option>
+          </select>
+        </div>
+      </div>
+      <div class="tableWrap"><table>
+        <thead><tr>
+          <th>Client</th><th>Phone</th><th>Service</th><th>Called When</th>
+          <th>Appointment</th><th>Client Met</th><th>Met On</th>
+          <th>Lost When</th><th>Quoted Price</th><th>Notes</th><th>Action</th>
+        </tr></thead><tbody id="lostBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+</div>
+
+
+
+<div id="adminMenuWrap" style="
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:15;
+">
+  <div id="adminMenu" style="
+    display:none;
+    position:absolute;
+    right:0;
+    bottom:52px;
+    min-width:190px;
+    padding:8px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,.38);
+  ">
+    <button class="secondary" onclick="exportBackup()" style="width:100%;margin-bottom:6px;">Export Full Backup</button>
+    <button class="secondary" onclick="document.getElementById('importFile').click()" style="width:100%;margin-bottom:6px;">Import Full Backup</button>
+    <button class="danger" onclick="purgeMonth()" style="width:100%;">Purge Month Data</button>
+  </div>
+
+  <button id="adminMenuButton" class="secondary" type="button" onclick="toggleAdminMenu()" style="
+    width:42px;
+    height:42px;
+    padding:0;
+    border-radius:50%;
+    font-size:22px;
+    line-height:1;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);
+  " aria-label="Admin tools" title="Admin tools">⋯</button>
+</div>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+
+
+<button class="secretBtn" type="button" onclick="openCommission()">X</button>
+
+<div class="modal" id="commissionModal">
+  <div class="modalCard" style="width:min(650px,100%)">
+    <h2 style="margin-top:0">Commission</h2>
+    <div style="color:var(--muted);font-size:13px">
+      Current selected month • 30% commission on revenue above $8,400
+    </div>
+    <div class="commissionGrid">
+      <div class="commissionStat">
+        <div class="label">Current Revenue</div>
+        <div class="amount" id="commissionRevenue">$0</div>
+      </div>
+      <div class="commissionStat">
+        <div class="label">Above $8,400</div>
+        <div class="amount" id="commissionExcess">$0</div>
+      </div>
+      <div class="commissionStat">
+        <div class="label">Your Commission</div>
+        <div class="amount" id="commissionAmount">$0</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="secondary" onclick="closeCommission()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="leadModal">
+  <div class="modalCard">
+    <h2 id="modalTitle" style="margin-top:0">Add Lead</h2>
+    <form id="leadForm">
+      <input type="hidden" id="leadId">
+      <div class="formGrid">
+        <div><label>Date Called</label><input type="date" id="dateCalled" required></div>
+        <div><label>Client Name</label><input id="clientName" required placeholder="Name"></div>
+        <div><label>Phone</label><input id="phone" placeholder="+65..."></div>
+        <div><label>Service</label><select id="service"><option>PR Application</option><option>Singapore Citizenship</option><option>Other</option></select></div>
+        <div><label>Status</label><select id="status">
+          <option>New</option><option>Appointment Set</option>
+          <option>Follow Up</option><option>Closed</option><option>Lost</option>
+        </select></div>
+        <div><label>Quoted / Closed Price ($)</label><input type="number" min="0" step="1" id="price" placeholder="1500"></div>
+        <div><label>Appointment Date</label><input type="date" id="appointmentDate"></div>
+        <div><label>Appointment Time</label><input type="text" id="appointmentTime" placeholder="e.g. 1300, 15:30 or 3:30 PM"></div>
+        <div>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:24px;color:var(--text)">
+            <input type="checkbox" id="metCheck" style="width:auto"> Client Met
+          </label>
+        </div>
+        <div><label>Met Date</label><input type="date" id="metDate"></div>
+        <div><label>Next Follow-up Date</label><input type="date" id="followUpDate"></div>
+        <div><label>Lead Source</label>
+          <select id="source">
+            <option value="">Select source</option>
+            <option value="Call">Call</option>
+            <option value="Reference">Reference</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <label>Attachments</label>
+          <div class="attachBox">
+            <input type="file" id="attachmentInput" multiple accept="image/*,.pdf,.doc,.docx" style="width:100%">
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">
+              Add receipts, signed documents, images or PDFs. Files are stored locally in this browser.
+            </div>
+            <div class="attachList" id="attachmentList"></div>
+          </div>
+        </div>
+
+        <div class="full"><label>Notes</label><textarea id="notes" rows="4" placeholder="Profile, objections, what they need, follow-up details..."></textarea></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Save Lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'salesTrackerPlus_v1';
+let leads = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+const ATTACH_DB='heritageTrackerAttachments';
+const ATTACH_STORE='files';
+let pendingAttachments=[];
+
+function openAttachmentDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(ATTACH_DB,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains(ATTACH_STORE)){
+        const store=db.createObjectStore(ATTACH_STORE,{keyPath:'id'});
+        store.createIndex('leadId','leadId',{unique:false});
+      }
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function saveAttachment(leadId,file){
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readwrite');
+    const store=tx.objectStore(ATTACH_STORE);
+    const item={
+      id:(crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random()),
+      leadId,
+      name:file.name,
+      type:file.type || 'application/octet-stream',
+      size:file.size,
+      addedAt:new Date().toISOString(),
+      blob:file
+    };
+    store.put(item);
+    tx.oncomplete=()=>resolve(item);
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+async function getAttachments(leadId){
+  if(!leadId) return [];
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readonly');
+    const index=tx.objectStore(ATTACH_STORE).index('leadId');
+    const req=index.getAll(leadId);
+    req.onsuccess=()=>resolve(req.result || []);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function deleteAttachment(id){
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readwrite');
+    tx.objectStore(ATTACH_STORE).delete(id);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+async function deleteLeadAttachments(leadId){
+  const items=await getAttachments(leadId);
+  if(!items.length) return;
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readwrite');
+    const store=tx.objectStore(ATTACH_STORE);
+    items.forEach(x=>store.delete(x.id));
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+function humanSize(bytes){
+  const n=Number(bytes||0);
+  if(n<1024) return n+' B';
+  if(n<1024*1024) return (n/1024).toFixed(1)+' KB';
+  return (n/(1024*1024)).toFixed(1)+' MB';
+}
+
+async function renderAttachmentList(leadId){
+  const box=$('#attachmentList');
+  if(!box) return;
+
+  let saved=[];
+  try{ saved=await getAttachments(leadId); }catch(e){}
+
+  const savedHtml=saved.map(a=>`
+    <div class="attachItem">
+      <div class="attachMeta">
+        <div class="attachName">${esc(a.name)}</div>
+        <div class="attachSub">${humanSize(a.size)} • ${fmtDate(a.addedAt)}</div>
+      </div>
+      <div class="attachActions">
+        <button type="button" class="secondary callbtn" onclick="openAttachment('${a.id}')">View</button>
+        <button type="button" class="danger callbtn" onclick="removeAttachment('${a.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+
+  const pendingHtml=pendingAttachments.map((f,i)=>`
+    <div class="attachItem">
+      <div class="attachMeta">
+        <div class="attachName">${esc(f.name)}</div>
+        <div class="attachSub">${humanSize(f.size)} • pending save</div>
+      </div>
+      <div class="attachActions">
+        <button type="button" class="danger callbtn" onclick="removePendingAttachment(${i})">Remove</button>
+      </div>
+    </div>`).join('');
+
+  box.innerHTML=(savedHtml+pendingHtml) || '<div style="color:var(--muted);font-size:12px">No attachments yet.</div>';
+}
+
+async function openAttachment(id){
+  const db=await openAttachmentDB();
+  const item=await new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readonly');
+    const req=tx.objectStore(ATTACH_STORE).get(id);
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  if(!item) return;
+  const url=URL.createObjectURL(item.blob);
+  window.open(url,'_blank');
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+async function removeAttachment(id){
+  if(!confirm('Delete this attachment?')) return;
+  await deleteAttachment(id);
+  await renderAttachmentList($('#leadId').value);
+}
+
+function removePendingAttachment(index){
+  pendingAttachments.splice(index,1);
+  renderAttachmentList($('#leadId').value);
+}
+
+function blobToDataURL(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=()=>reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+
+function dataURLToBlob(dataURL){
+  const parts=String(dataURL).split(',');
+  const meta=parts[0]||'';
+  const b64=parts[1]||'';
+  const mime=(meta.match(/data:(.*?);base64/)||[])[1] || 'application/octet-stream';
+  const binary=atob(b64);
+  const bytes=new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return new Blob([bytes],{type:mime});
+}
+
+async function getAllAttachments(){
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readonly');
+    const req=tx.objectStore(ATTACH_STORE).getAll();
+    req.onsuccess=()=>resolve(req.result || []);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+async function clearAllAttachments(){
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readwrite');
+    tx.objectStore(ATTACH_STORE).clear();
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+async function restoreAttachmentRecord(record){
+  const db=await openAttachmentDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(ATTACH_STORE,'readwrite');
+    tx.objectStore(ATTACH_STORE).put(record);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const money = n => '$' + Number(n||0).toLocaleString('en-SG');
+const today = () => new Date().toISOString().slice(0,10);
+const thisMonth = () => new Date().toISOString().slice(0,7);
+
+function normalizeTimeInput(value){
+  const raw=String(value||'').trim().toUpperCase();
+  if(!raw) return '';
+
+  // Accept compact 24-hour time such as 1300, 0930 or 930
+  let m=raw.match(/^(\d{3,4})$/);
+  if(m){
+    const digits=m[1].padStart(4,'0');
+    const h=Number(digits.slice(0,2));
+    const min=Number(digits.slice(2,4));
+    if(h>=0 && h<=23 && min>=0 && min<=59)
+      return String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+  }
+
+  // Accept 24-hour HH:MM
+  m=raw.match(/^(\d{1,2}):(\d{2})$/);
+  if(m){
+    let h=Number(m[1]), min=Number(m[2]);
+    if(h>=0 && h<=23 && min>=0 && min<=59)
+      return String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+  }
+
+  // Accept 12-hour formats such as 3:30 PM, 3PM, 03.30 pm
+  m=raw.match(/^(\d{1,2})(?:[:.]?(\d{2}))?\s*(AM|PM)$/);
+  if(m){
+    let h=Number(m[1]), min=Number(m[2]||0), ap=m[3];
+    if(h>=1 && h<=12 && min>=0 && min<=59){
+      if(ap==='AM' && h===12) h=0;
+      if(ap==='PM' && h!==12) h+=12;
+      return String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');
+    }
+  }
+  return null;
+}
+
+function displayTimeFromAppointment(value){
+  if(!value || !value.includes('T')) return '';
+  const part=value.split('T')[1].slice(0,5);
+  const [hh,mm]=part.split(':').map(Number);
+  const ap=hh>=12?'PM':'AM';
+  const h12=hh%12||12;
+  return `${h12}:${String(mm).padStart(2,'0')} ${ap}`;
+}
+
+$('#monthFilter').value = thisMonth();
+$('#dateCalled').value = today();
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active'); $('#'+btn.dataset.page).classList.add('active');
+}));
+
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); render(); }
+function fmtDate(v){
+  if(!v) return '—';
+  const d = new Date(v);
+  if(isNaN(d)) return v;
+  return d.toLocaleString('en-SG',{day:'2-digit',month:'short',year:'numeric',hour:v.includes('T')?'2-digit':undefined,minute:v.includes('T')?'2-digit':undefined});
+}
+function badge(status){
+  const cls = {'New':'new','Appointment Set':'appt','Follow Up':'follow','Closed':'closed','Lost':'lost'}[status]||'new';
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+function selectedMonth(){
+  return $('#monthFilter').value;
+}
+
+function isInSelectedMonth(value){
+  const m=selectedMonth();
+  return !m || String(value||'').startsWith(m);
+}
+
+function monthLeads(){
+  // Calls / New Leads use Date Called.
+  return leads.filter(x=>isInSelectedMonth(x.dateCalled));
+}
+
+function outstandingNewLeads(){
+  const m=selectedMonth();
+  if(!m) return leads.filter(x=>x.status==='New');
+
+  // A NEW lead remains visible in the selected month if it was received
+  // in that month or any earlier month. It disappears only after status changes.
+  return leads.filter(x=>
+    x.status==='New' &&
+    String(x.dateCalled||'').slice(0,7) <= m
+  );
+}
+
+function appointmentMonthLeads(){
+  return leads.filter(x=>isInSelectedMonth(x.appointmentAt));
+}
+
+function followUpMonthLeads(){
+  // Primary activity date is Follow-up Date.
+  // If an older record has no follow-up date but is already in Follow Up,
+  // fall back to Met Date so it does not disappear entirely.
+  return leads.filter(x=>{
+    const activityDate=x.followUpDate || (x.status==='Follow Up' ? x.metDate : '');
+    return activityDate && isInSelectedMonth(activityDate);
+  });
+}
+
+function calledMonthLeads(){
+  return leads.filter(x=>{
+    if(x.status==='New') return false;
+    const activityDate=x.calledAt || x.dateCalled;
+    return activityDate && isInSelectedMonth(activityDate);
+  });
+}
+
+function closedMonthLeads(){
+  return leads.filter(x=>x.status==='Closed' && isInSelectedMonth(x.closedAt));
+}
+
+function lostMonthLeads(){
+  return leads.filter(x=>x.status==='Lost' && isInSelectedMonth(x.lostAt));
+}
+function textMatch(x,q){
+  q=q.toLowerCase();
+  return [x.clientName,x.phone,x.service,x.status,x.notes,x.source].some(v=>String(v||'').toLowerCase().includes(q));
+}
+
+function openCommission(){
+  const pin=prompt('Enter PIN');
+  if(pin===null) return;
+
+  if(pin!=='555666'){
+    alert('Incorrect PIN.');
+    return;
+  }
+
+  const data=closedMonthLeads();
+  const revenue=data.reduce((sum,x)=>sum+Number(x.price||0),0);
+
+  const threshold=8400;
+  const excess=Math.max(0,revenue-threshold);
+  const commission=excess*0.30;
+
+  $('#commissionRevenue').textContent=money(revenue);
+  $('#commissionExcess').textContent=money(excess);
+  $('#commissionAmount').textContent=money(commission);
+  $('#commissionModal').classList.add('show');
+}
+
+function closeCommission(){
+  $('#commissionModal').classList.remove('show');
+}
+
+function renderStats(){
+  const outstanding=outstandingNewLeads();
+  const calledData=calledMonthLeads();
+
+  // Leads = current NEW backlog carried into this month + leads actually worked this month.
+  // This keeps the workload total meaningful when old NEW leads roll forward.
+  const calls=outstanding.length + calledData.length;
+  const called=calledData.length;
+
+  const appts=appointmentMonthLeads()
+    .filter(x=>x.status==='Appointment Set').length;
+
+  const followups=followUpMonthLeads()
+    .filter(x=>x.status!=='Closed' && x.status!=='Lost').length;
+
+  const closedData=closedMonthLeads();
+  const closed=closedData.length;
+
+  const lost=lostMonthLeads().length;
+
+  const rev=closedData.reduce((a,x)=>a+Number(x.price||0),0);
+
+  const target=17000, pct=Math.min(100,rev/target*100);
+  const cards=[
+    ['Leads',calls],
+    ['Called',called],
+    ['Active Appointments',appts],
+    ['Follow Ups',followups],
+    ['Closed',closed],
+    ['Lost',lost],
+    ['Revenue',money(rev)],
+    ['Target Progress',`${pct.toFixed(1)}%`,pct]
+  ];
+  $('#stats').innerHTML=cards.map(c=>`<div class="card"><div class="k">${c[0]}</div><div class="v">${c[1]}</div>${c[2]!==undefined?`<div class="progress"><div style="width:${c[2]}%"></div></div>`:''}</div>`).join('');
+}
+function actionBtns(x){
+  return `<div class="nowrap">
+    <button class="secondary callbtn" onclick="editLead('${x.id}')">Edit</button>
+    <button class="danger callbtn" onclick="deleteLead('${x.id}')">Delete</button>
+  </div>`;
+}
+
+function sortByChoice(data, choice, field){
+  const arr=[...data];
+  if(choice==='az'){
+    return arr.sort((a,b)=>(a.clientName||'').localeCompare(b.clientName||'',undefined,{sensitivity:'base'}));
+  }
+  if(choice==='za'){
+    return arr.sort((a,b)=>(b.clientName||'').localeCompare(a.clientName||'',undefined,{sensitivity:'base'}));
+  }
+  if(choice==='oldest'){
+    return arr.sort((a,b)=>(a[field]||'').localeCompare(b[field]||''));
+  }
+  if(choice==='latest' || choice==='newest'){
+    return arr.sort((a,b)=>(b[field]||'').localeCompare(a[field]||''));
+  }
+  if(choice==='soonest'){
+    return arr.sort((a,b)=>(a[field]||'9999').localeCompare(b[field]||'9999'));
+  }
+  if(choice==='calledNewest'){
+    return arr.sort((a,b)=>(b.dateCalled||'').localeCompare(a.dateCalled||''));
+  }
+  return arr;
+}
+
+function renderAll(){
+  let data=outstandingNewLeads();
+  const q=$('#searchAll').value.trim();
+  if(q) data=data.filter(x=>textMatch(x,q));
+  data=sortByChoice(data,$('#sortNew').value,'dateCalled');
+  $('#allBody').innerHTML=data.length?data.map(x=>`<tr>
+    <td>${fmtDate(x.dateCalled)}</td><td><b>${esc(x.clientName)}</b></td><td>${esc(x.phone)||'—'}</td>
+    <td>${esc(x.service)}</td><td>${badge(x.status)}</td>
+    <td>${x.metDate?'<span class="badge met">CLIENT MET</span>':'—'}</td>
+    <td>${fmtDate(x.appointmentAt)}</td>
+    <td>${x.price?money(x.price):'—'}</td><td>${fmtDate(x.followUpDate)}</td><td class="note">${esc(x.notes)}</td><td>${actionBtns(x)}</td>
+  </tr>`).join(''):`<tr><td colspan="11" class="empty">No leads found.</td></tr>`;
+}
+function renderAppointments(){
+  let data=appointmentMonthLeads().filter(x=>x.appointmentAt && x.status==='Appointment Set');
+  const q=$('#searchAppointments').value.trim(); if(q)data=data.filter(x=>textMatch(x,q));
+  data=sortByChoice(data,$('#sortAppointments').value,'appointmentAt');
+  $('#apptBody').innerHTML=data.length?data.map(x=>`<tr>
+    <td><b>${esc(x.clientName)}</b></td><td>${esc(x.phone)||'—'}</td><td>${esc(x.service)}</td>
+    <td>${fmtDate(x.calledAt || x.dateCalled)}</td>
+    <td>${fmtDate(x.appointmentAt)}</td><td>${badge(x.status)}</td>
+    <td>${x.metDate?'<span class="badge met">CLIENT MET</span>':'—'}</td>
+    <td>${fmtDate(x.metDate)}</td>
+    <td>${x.price?money(x.price):'—'}</td>
+    <td class="note">${esc(x.notes)}</td><td>${actionBtns(x)}</td></tr>`).join(''):
+    `<tr><td colspan="11" class="empty">No appointments set for this month.</td></tr>`;
+}
+function renderFollowups(){
+  // Page 3 rule: they have been met/called, are not closed/lost, and need follow-up.
+  let data=followUpMonthLeads().filter(x=>
+    (x.metDate || x.followUpDate || x.status==='Follow Up') &&
+    x.status!=='Closed' &&
+    x.status!=='Lost'
+  );
+  const q=$('#searchFollow').value.trim(); if(q)data=data.filter(x=>textMatch(x,q));
+  const due=$('#followDue').value, t=today();
+  if(due==='overdue') data=data.filter(x=>x.followUpDate && x.followUpDate<t);
+  if(due==='today') data=data.filter(x=>x.followUpDate===t);
+  if(due==='future') data=data.filter(x=>x.followUpDate && x.followUpDate>t);
+  data=sortByChoice(data,$('#sortFollow').value,'followUpDate');
+  $('#followBody').innerHTML=data.length?data.map(x=>`<tr>
+    <td><b>${esc(x.clientName)}</b></td><td>${esc(x.phone)||'—'}</td><td>${esc(x.service)}</td>
+    <td>${x.metDate?'<span class="badge met">CLIENT MET</span>':'—'}</td>
+    <td>${fmtDate(x.metDate)}</td><td>${fmtDate(x.followUpDate)}</td><td>${x.price?money(x.price):'—'}</td>
+    <td class="note">${esc(x.notes)}</td><td>${actionBtns(x)}</td></tr>`).join(''):
+    `<tr><td colspan="9" class="empty">No follow-ups found.</td></tr>`;
+}
+function renderClosed(){
+  let data=closedMonthLeads();
+  const q=$('#searchClosed').value.trim();
+  if(q) data=data.filter(x=>textMatch(x,q));
+  data=sortByChoice(data,$('#sortClosed').value,'closedAt');
+  $('#closedBody').innerHTML=data.length?data.map(x=>`<tr>
+    <td><b>${esc(x.clientName)}</b></td><td>${esc(x.phone)||'—'}</td><td>${esc(x.service)}</td>
+    <td>${x.metDate?'<span class="badge met">CLIENT MET</span>':'—'}</td>
+    <td>${fmtDate(x.appointmentAt)}</td><td>${fmtDate(x.metDate)}</td>
+    <td>${fmtDate(x.closedAt)}</td>
+    <td>${x.price?money(x.price):'—'}</td>
+    <td class="note">${esc(x.notes)}</td><td>${actionBtns(x)}</td></tr>`).join(''):
+    `<tr><td colspan="10" class="empty">No closed sales for this month.</td></tr>`;
+}
+
+function renderLost(){
+  let data=lostMonthLeads();
+  const q=$('#searchLost').value.trim();
+  if(q) data=data.filter(x=>textMatch(x,q));
+
+  data=sortByChoice(data,$('#sortLost').value,'lostAt');
+
+  $('#lostBody').innerHTML=data.length?data.map(x=>`<tr>
+    <td><b>${esc(x.clientName)}</b></td>
+    <td>${esc(x.phone)||'—'}</td>
+    <td>${esc(x.service)}</td>
+    <td>${fmtDate(x.dateCalled)}</td>
+    <td>${fmtDate(x.appointmentAt)}</td>
+    <td>${x.metDate?'<span class="badge met">CLIENT MET</span>':'—'}</td>
+    <td>${fmtDate(x.metDate)}</td>
+    <td>${fmtDate(x.lostAt)}</td>
+    <td>${x.price?money(x.price):'—'}</td>
+    <td class="note">${esc(x.notes)}</td>
+    <td>${actionBtns(x)}</td>
+  </tr>`).join(''):`<tr><td colspan="11" class="empty">No lost leads for this month.</td></tr>`;
+}
+
+function render(){renderStats();renderAll();renderAppointments();renderFollowups();renderClosed();renderLost();}
+function openModal(){
+  $('#leadForm').reset(); $('#leadId').value=''; $('#modalTitle').textContent='Add Lead';
+  $('#metCheck').checked=false;
+  $('#appointmentDate').value='';
+  $('#appointmentTime').value='';
+  pendingAttachments=[];
+  $('#attachmentInput').value='';
+  $('#dateCalled').value=today(); $('#leadModal').classList.add('show');
+  renderAttachmentList('');
+}
+function closeModal(){ $('#leadModal').classList.remove('show'); }
+function editLead(id){
+  const x=leads.find(v=>v.id===id); if(!x)return;
+  $('#leadId').value=x.id;
+  ['dateCalled','clientName','phone','service','status','price','metDate','followUpDate','source','notes']
+   .forEach(k=>$('#'+k).value=x[k]||'');
+  $('#appointmentDate').value=x.appointmentAt ? x.appointmentAt.slice(0,10) : '';
+  $('#appointmentTime').value=displayTimeFromAppointment(x.appointmentAt);
+  $('#metCheck').checked=!!x.metDate;
+  pendingAttachments=[];
+  $('#attachmentInput').value='';
+  $('#modalTitle').textContent='Edit Lead'; $('#leadModal').classList.add('show');
+  renderAttachmentList(x.id);
+}
+async function deleteLead(id){
+  if(confirm('Delete this lead and all of its attachments?')){
+    leads=leads.filter(x=>x.id!==id);
+    try{ await deleteLeadAttachments(id); }catch(e){}
+    save();
+  }
+}
+$('#leadForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const obj={};
+  ['dateCalled','clientName','phone','service','status','price','metDate','followUpDate','source','notes']
+    .forEach(k=>obj[k]=$('#'+k).value.trim());
+
+  const apptDate=$('#appointmentDate').value.trim();
+  const typedTime=$('#appointmentTime').value.trim();
+  const normalizedTime=normalizeTimeInput(typedTime);
+
+  if(typedTime && normalizedTime===null){
+    alert('Please enter the appointment time as something like 1300, 15:30 or 3:30 PM.');
+    return;
+  }
+
+  obj.appointmentAt = apptDate
+    ? `${apptDate}T${normalizedTime || '00:00'}`
+    : '';
+
+  if($('#metCheck').checked && !obj.metDate) obj.metDate=today();
+  if(!$('#metCheck').checked) obj.metDate='';
+  // Automatically keep status aligned with entered dates.
+  if(obj.appointmentAt && obj.status==='New') obj.status='Appointment Set';
+  if(obj.followUpDate && !['Closed','Lost'].includes(obj.status)) obj.status='Follow Up';
+
+  const id=$('#leadId').value;
+
+  if(id){
+    const i=leads.findIndex(x=>x.id===id);
+    const existing=leads[i] || {};
+    obj.id=id;
+
+    // First time a lead moves out of NEW = actual interaction/call date.
+    if(existing.status==='New' && obj.status!=='New'){
+      obj.calledAt = existing.calledAt || new Date().toISOString();
+    } else {
+      obj.calledAt = existing.calledAt || '';
+    }
+
+    if(obj.status==='Closed'){
+      obj.closedAt = existing.closedAt || new Date().toISOString();
+    } else {
+      obj.closedAt = existing.closedAt || '';
+    }
+
+    if(obj.status==='Lost'){
+      obj.lostAt = existing.lostAt || new Date().toISOString();
+    } else {
+      obj.lostAt = existing.lostAt || '';
+    }
+
+    leads[i]=obj;
+  } else {
+    obj.id=crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+    obj.calledAt = obj.status!=='New' ? new Date().toISOString() : '';
+    obj.closedAt = obj.status==='Closed' ? new Date().toISOString() : '';
+    obj.lostAt = obj.status==='Lost' ? new Date().toISOString() : '';
+    leads.push(obj);
+  }
+
+  const savedLeadId=obj.id;
+
+  if(pendingAttachments.length){
+    for(const file of pendingAttachments){
+      try{ await saveAttachment(savedLeadId,file); }catch(err){ console.error(err); }
+    }
+    pendingAttachments=[];
+  }
+
+  save(); closeModal();
+});
+
+
+
+function toggleAdminMenu(){
+  const menu=$('#adminMenu');
+  menu.style.display = menu.style.display==='block' ? 'none' : 'block';
+}
+
+function closeAdminMenu(){
+  const menu=$('#adminMenu');
+  if(menu) menu.style.display='none';
+}
+
+async function exportBackup(){
+  closeAdminMenu();
+  try{
+    const attachments=await getAllAttachments();
+    const packedAttachments=[];
+
+    for(const a of attachments){
+      packedAttachments.push({
+        id:a.id,
+        leadId:a.leadId,
+        name:a.name,
+        type:a.type,
+        size:a.size,
+        addedAt:a.addedAt,
+        dataURL:await blobToDataURL(a.blob)
+      });
+    }
+
+    const payload={
+      app:'HERITAGE TRACKER',
+      version:'4.1',
+      exportedAt:new Date().toISOString(),
+      leads:leads,
+      attachments:packedAttachments
+    };
+
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`heritage-tracker-full-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    alert(`Backup complete.\n\n${leads.length} lead record${leads.length===1?'':'s'}\n${packedAttachments.length} attachment${packedAttachments.length===1?'':'s'} included.`);
+  }catch(err){
+    console.error(err);
+    alert('Backup failed. Please try again.');
+  }
+}
+
+function importBackupFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+
+  reader.onload=async ()=>{
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=Array.isArray(payload)?payload:payload.leads;
+      const incomingAttachments=Array.isArray(payload?.attachments)?payload.attachments:[];
+
+      if(!Array.isArray(incoming)){
+        alert('Invalid HERITAGE TRACKER backup file.');
+        return;
+      }
+
+      const mode=prompt(
+        `Backup found with ${incoming.length} lead record${incoming.length===1?'':'s'} and ${incomingAttachments.length} attachment${incomingAttachments.length===1?'':'s'}.\n\nType MERGE to add these records to your existing data.\nType REPLACE to erase current data and restore this backup instead.\n\nNothing will change if you cancel.`,
+        'MERGE'
+      );
+
+      if(mode===null) return;
+      const choice=mode.trim().toUpperCase();
+
+      if(choice==='REPLACE'){
+        const ok=confirm(
+          `REPLACE ALL DATA?\n\nYour current ${leads.length} lead record${leads.length===1?'':'s'} and locally stored attachments will be removed and replaced with this backup.\n\nThis cannot be undone unless you exported a backup first.`
+        );
+        if(!ok) return;
+
+        leads=incoming;
+        await clearAllAttachments();
+
+        for(const a of incomingAttachments){
+          const record={
+            id:a.id || (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random()),
+            leadId:a.leadId,
+            name:a.name || 'attachment',
+            type:a.type || 'application/octet-stream',
+            size:a.size || 0,
+            addedAt:a.addedAt || new Date().toISOString(),
+            blob:dataURLToBlob(a.dataURL)
+          };
+          await restoreAttachmentRecord(record);
+        }
+
+      } else if(choice==='MERGE'){
+        const existingIds=new Set(leads.map(x=>x.id).filter(Boolean));
+        const idMap={};
+        const merged=[...leads];
+
+        incoming.forEach(item=>{
+          const copy={...item};
+          const oldId=copy.id;
+          if(!copy.id || existingIds.has(copy.id)){
+            copy.id=(crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random());
+          }
+          if(oldId) idMap[oldId]=copy.id;
+          existingIds.add(copy.id);
+          merged.push(copy);
+        });
+
+        leads=merged;
+
+        const existingAttachments=await getAllAttachments();
+        const existingAttachmentIds=new Set(existingAttachments.map(a=>a.id).filter(Boolean));
+
+        for(const a of incomingAttachments){
+          let newAttachmentId=a.id;
+          if(!newAttachmentId || existingAttachmentIds.has(newAttachmentId)){
+            newAttachmentId=(crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random());
+          }
+          existingAttachmentIds.add(newAttachmentId);
+
+          const record={
+            id:newAttachmentId,
+            leadId:idMap[a.leadId] || a.leadId,
+            name:a.name || 'attachment',
+            type:a.type || 'application/octet-stream',
+            size:a.size || 0,
+            addedAt:a.addedAt || new Date().toISOString(),
+            blob:dataURLToBlob(a.dataURL)
+          };
+          await restoreAttachmentRecord(record);
+        }
+
+      } else {
+        alert('Import cancelled. Please type MERGE or REPLACE.');
+        return;
+      }
+
+      save();
+      alert(`Import complete.\n\n${incoming.length} lead record${incoming.length===1?'':'s'} processed.\n${incomingAttachments.length} attachment${incomingAttachments.length===1?'':'s'} restored.`);
+    }catch(err){
+      console.error(err);
+      alert('Could not read or restore this backup file. Make sure it is a valid HERITAGE TRACKER backup.');
+    }finally{
+      document.getElementById('importFile').value='';
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function purgeMonth(){
+  closeAdminMenu();
+  const m=$('#monthFilter').value;
+  if(!m){
+    alert('Please select a month first.');
+    return;
+  }
+
+  const count=leads.filter(x=>(x.dateCalled||'').startsWith(m)).length;
+  if(count===0){
+    alert('There is no data to purge for this month.');
+    return;
+  }
+
+  const label=new Date(m+'-01T00:00:00').toLocaleString('en-SG',{month:'long',year:'numeric'});
+  const ok=confirm(`PURGE ${label.toUpperCase()}?\n\nThis will permanently delete ${count} record${count===1?'':'s'} from this month.\n\nThis cannot be undone.`);
+  if(!ok) return;
+
+  leads=leads.filter(x=>!(x.dateCalled||'').startsWith(m));
+  save();
+  alert(`${label} data has been purged.`);
+}
+
+
+function parseCSV(text){
+  const rows=[];
+  let row=[], cell='', inQuotes=false;
+
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    const next=text[i+1];
+
+    if(ch==='"'){
+      if(inQuotes && next==='"'){
+        cell+='"';
+        i++;
+      }else{
+        inQuotes=!inQuotes;
+      }
+    }else if(ch===',' && !inQuotes){
+      row.push(cell);
+      cell='';
+    }else if((ch==='\n' || ch==='\r') && !inQuotes){
+      if(ch==='\r' && next==='\n') i++;
+      row.push(cell);
+      if(row.some(v=>String(v).trim()!=='')) rows.push(row);
+      row=[];
+      cell='';
+    }else{
+      cell+=ch;
+    }
+  }
+
+  row.push(cell);
+  if(row.some(v=>String(v).trim()!=='')) rows.push(row);
+  return rows;
+}
+
+function normalizeHeader(h){
+  return String(h||'')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'');
+}
+
+function pickCSVValue(obj, aliases){
+  for(const alias of aliases){
+    const key=normalizeHeader(alias);
+    if(obj[key]!==undefined && String(obj[key]).trim()!==''){
+      return String(obj[key]).trim();
+    }
+  }
+  return '';
+}
+
+function normalizeImportedDate(value){
+  const raw=String(value||'').trim();
+  if(!raw) return today();
+
+  // Already YYYY-MM-DD
+  if(/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+  // DD/MM/YYYY or DD-MM-YYYY
+  let m=raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  if(m){
+    const d=String(Number(m[1])).padStart(2,'0');
+    const mo=String(Number(m[2])).padStart(2,'0');
+    return `${m[3]}-${mo}-${d}`;
+  }
+
+  const d=new Date(raw);
+  if(!isNaN(d)) return d.toISOString().slice(0,10);
+  return today();
+}
+
+async function importNewLeadsCSV(file){
+  if(!file) return;
+
+  try{
+    const raw=await file.text();
+    const rows=parseCSV(raw);
+
+    if(rows.length<2){
+      alert('CSV has no lead rows to import.');
+      return;
+    }
+
+    const headers=rows[0].map(normalizeHeader);
+    const records=rows.slice(1).map(r=>{
+      const obj={};
+      headers.forEach((h,i)=>obj[h]=r[i]??'');
+      return obj;
+    });
+
+    const previewCount=records.length;
+    const ok=confirm(
+      `Import ${previewCount} lead${previewCount===1?'':'s'} as NEW?\n\n`+
+      `All imported rows will be given Status: New and will appear on Page 1.\n\n`+
+      `Recognised columns include Name, Phone, Service, Date Called, Source, Notes and Price.`
+    );
+    if(!ok) return;
+
+    let imported=0;
+    let skipped=0;
+
+    for(const r of records){
+      const clientName=pickCSVValue(r,['client name','client','name','full name','fullname']);
+      const phone=pickCSVValue(r,['phone','mobile','contact','contact number','phone number','mobilenumber']);
+      const service=pickCSVValue(r,['service','application type','type']) || 'PR Application';
+      const dateCalled=normalizeImportedDate(
+        pickCSVValue(r,['date called','called date','date','call date'])
+      );
+      const source=pickCSVValue(r,['lead source','source']);
+      const notes=pickCSVValue(r,['notes','remarks','remark','comments','comment']);
+      const price=pickCSVValue(r,['price','quoted price','quote','amount']);
+
+      if(!clientName && !phone){
+        skipped++;
+        continue;
+      }
+
+      leads.push({
+        id:crypto.randomUUID ? crypto.randomUUID() : Date.now().toString()+Math.random(),
+        dateCalled,
+        clientName:clientName || 'Unnamed Lead',
+        phone,
+        service,
+        status:'New',
+        calledAt:'',
+        price,
+        appointmentAt:'',
+        metDate:'',
+        followUpDate:'',
+        source,
+        notes,
+        closedAt:'',
+        lostAt:''
+      });
+      imported++;
+    }
+
+    save();
+    alert(
+      `CSV import complete.\n\n${imported} new lead${imported===1?'':'s'} added.`+
+      (skipped ? `\n${skipped} blank row${skipped===1?'':'s'} skipped.` : '')
+    );
+  }catch(err){
+    console.error(err);
+    alert('Could not import this CSV file. Please check that it is a valid CSV.');
+  }finally{
+    $('#csvLeadInput').value='';
+  }
+}
+
+function exportCSV(){
+  const rows=[['Lead Date','Called When','Client','Phone','Service','Status','Appointment','Met Date','Follow-up','Price','Source','Notes']];
+  monthLeads().forEach(x=>rows.push([x.dateCalled,x.calledAt||'',x.clientName,x.phone,x.service,x.status,x.appointmentAt,x.metDate,x.followUpDate,x.price,x.source,x.notes]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=`sales-tracker-${$('#monthFilter').value||'all'}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+['monthFilter','searchAll','searchAppointments','searchFollow','searchClosed','searchLost'].forEach(id=>{
+  $('#'+id).addEventListener(id==='monthFilter'?'change':'input',render);
+});
+['followDue','sortNew','sortAppointments','sortFollow','sortClosed','sortLost'].forEach(id=>{
+  $('#'+id).addEventListener('change',render);
+});
+document.addEventListener('click',e=>{
+  const wrap=$('#adminMenuWrap');
+  if(wrap && !wrap.contains(e.target)) closeAdminMenu();
+});
+$('#leadModal').addEventListener('click',e=>{if(e.target.id==='leadModal')closeModal()});
+$('#commissionModal').addEventListener('click',e=>{if(e.target.id==='commissionModal')closeCommission()});
+$('#importFile').addEventListener('change',e=>{closeAdminMenu();importBackupFile(e.target.files[0]);});
+$('#csvLeadInput').addEventListener('change',e=>importNewLeadsCSV(e.target.files[0]));
+$('#attachmentInput').addEventListener('change',e=>{
+  pendingAttachments=[...pendingAttachments,...Array.from(e.target.files||[])];
+  e.target.value='';
+  renderAttachmentList($('#leadId').value);
+});
+render();
+</script>
+</body>
+</html>
